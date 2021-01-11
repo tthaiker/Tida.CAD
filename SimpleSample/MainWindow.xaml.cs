@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Tida.Canvas.Contracts;
+using Tida.Canvas.Infrastructure.DrawObjects;
 using Tida.Geometry.Primitives;
 
 namespace SimpleSample
@@ -53,6 +54,123 @@ namespace SimpleSample
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
             _canvasLayer.Clear();
+        }
+
+        private void CreateDim_Click(object sender, RoutedEventArgs e)
+        {
+            {
+                LineDimInfoLst list = new LineDimInfoLst();
+
+                {
+                    LineDimInfo lineDimInfo = new LineDimInfo();
+                    lineDimInfo.Text = "梯段宽\n100";
+                    lineDimInfo.PtList.Add(new Vector2D(0, 3));
+                    lineDimInfo.PtList.Add(new Vector2D(2, 3));
+                    list.Add(lineDimInfo);
+                }
+
+                {
+                    LineDimInfo lineDimInfo = new LineDimInfo();
+                    lineDimInfo.Text = "梯井\n50";
+                    lineDimInfo.PtList.Add(new Vector2D(2, 3));
+                    lineDimInfo.PtList.Add(new Vector2D(3, 3));
+                    list.Add(lineDimInfo);
+                }
+
+                {
+                    LineDimInfo lineDimInfo = new LineDimInfo();
+                    lineDimInfo.Text = "梯段宽\n200";
+                    lineDimInfo.PtList.Add(new Vector2D(3, 3));
+                    lineDimInfo.PtList.Add(new Vector2D(6, 3));
+                    list.Add(lineDimInfo);
+                }
+
+                var customObject = new LineDimObject(list, 0.1);
+                _canvasLayer.AddDrawObject(customObject);
+
+            }
+
+            //{
+            //    LineDimInfoLst list = new LineDimInfoLst();
+
+            //    {
+            //        LineDimInfo lineDimInfo = new LineDimInfo();
+            //        lineDimInfo.Text = "梯段宽\n100";
+            //        lineDimInfo.PtList.Add(new Vector2D(0, 0));
+            //        lineDimInfo.PtList.Add(new Vector2D(3, 3));
+            //        list.Add(lineDimInfo);
+            //    }
+
+            //    {
+            //        LineDimInfo lineDimInfo = new LineDimInfo();
+            //        lineDimInfo.Text = "梯井\n50";
+            //        lineDimInfo.PtList.Add(new Vector2D(3, 3));
+            //        lineDimInfo.PtList.Add(new Vector2D(5, 5));
+            //        list.Add(lineDimInfo);
+            //    }
+
+            //    {
+            //        LineDimInfo lineDimInfo = new LineDimInfo();
+            //        lineDimInfo.Text = "梯段宽\n200";
+            //        lineDimInfo.PtList.Add(new Vector2D(5, 5));
+            //        lineDimInfo.PtList.Add(new Vector2D(7, 7));
+            //        list.Add(lineDimInfo);
+            //    }
+
+            //    var customObject = new LineDimObject(list, 0.1);
+            //    _canvasLayer.AddDrawObject(customObject);
+
+            //}
+
+            {
+                LineDimInfoLst list = new LineDimInfoLst();
+
+
+
+
+
+                {
+                    LineDimInfo lineDimInfo = new LineDimInfo();
+                    lineDimInfo.Text = "梯段宽\n200";
+
+                    lineDimInfo.PtList.Add(new Vector2D(7, 7));
+                    lineDimInfo.PtList.Add(new Vector2D(5, 5));
+                    list.Add(lineDimInfo);
+                }
+
+                {
+                    LineDimInfo lineDimInfo = new LineDimInfo();
+                    lineDimInfo.Text = "梯井\n50";
+
+                    lineDimInfo.PtList.Add(new Vector2D(5, 5));
+                    lineDimInfo.PtList.Add(new Vector2D(3, 3));
+                    list.Add(lineDimInfo);
+                }
+
+                {
+                    LineDimInfo lineDimInfo = new LineDimInfo();
+                    lineDimInfo.Text = "梯段宽\n100";
+
+                    lineDimInfo.PtList.Add(new Vector2D(3, 3));
+                    lineDimInfo.PtList.Add(new Vector2D(0, 0));
+                    list.Add(lineDimInfo);
+                }
+
+                var customObject = new LineDimObject(list, 0.1);
+                _canvasLayer.AddDrawObject(customObject);
+
+                
+            }
+
+            {
+                Vector2D start = new Vector2D(-100, -100);
+                Vector2D end = new Vector2D(-3, -3);
+                FragmentDimObject fragmentDimObject = new FragmentDimObject(start, end);
+                _canvasLayer.AddDrawObject(fragmentDimObject);
+            }
+
+            this.canvasControl.ZoomToFit();
+
         }
     }
 }

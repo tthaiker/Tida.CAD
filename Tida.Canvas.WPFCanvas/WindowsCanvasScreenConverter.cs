@@ -1,6 +1,7 @@
 ﻿using Tida.Canvas.Contracts;
 using Tida.Geometry.Primitives;
 using System;
+using System.Globalization;
 
 namespace Tida.Canvas.WPFCanvas {
     /// <summary>
@@ -110,6 +111,22 @@ namespace Tida.Canvas.WPFCanvas {
             }
 
             return null;
+        }
+
+        public Size GetStringRealSize(string text, double fontSize, string fontFamily)
+        {
+            System.Windows.Media.NumberSubstitution numberSubstitution = new System.Windows.Media.NumberSubstitution();
+            System.Windows.Media.FormattedText ft = new System.Windows.Media.FormattedText(
+                text,
+                CultureInfo.CurrentCulture,
+                System.Windows.FlowDirection.LeftToRight,
+                new System.Windows.Media.Typeface(fontFamily),
+                fontSize,
+                System.Windows.Media.Brushes.Black,
+                numberSubstitution,
+                System.Windows.Media.TextFormattingMode.Display
+            );
+            return Size.Create(ft.Width, ft.Height);
         }
     }
 }

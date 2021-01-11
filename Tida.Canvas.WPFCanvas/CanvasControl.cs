@@ -16,6 +16,7 @@ using SystemInput = System.Windows.Input;
 using CanvasInput = Tida.Canvas.Input;
 using System.Windows.Controls;
 using Size = System.Windows.Size;
+using System.Windows.Threading;
 
 namespace Tida.Canvas.WPFCanvas {
     /// <summary>
@@ -924,7 +925,7 @@ namespace Tida.Canvas.WPFCanvas {
 
         // Using a DependencyProperty as the backing store for MinZoom.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MinZoomProperty =
-            DependencyProperty.Register(nameof(MinZoom), typeof(double), typeof(CanvasControl), new PropertyMetadata(0.0005));
+            DependencyProperty.Register(nameof(MinZoom), typeof(double), typeof(CanvasControl), new PropertyMetadata(0.000005));
 
 
         /// <summary>
@@ -2983,7 +2984,6 @@ namespace Tida.Canvas.WPFCanvas {
     /// 输入事件;
     /// </summary>
     public partial class CanvasControl {
-
         /// <summary>
         /// 鼠标按下事件;
         /// </summary>
@@ -3033,6 +3033,8 @@ namespace Tida.Canvas.WPFCanvas {
             var viewPosition = GetMouseUnitPosition(e);
             var position = _activeSnapShape?.Position ?? CanvasProxy.ToUnit(viewPosition);
             var arg = MouseEventAdapter.ConvertToMouseDownEventArgs(e, position);
+
+            DealPreviewMouseMiddleDoubleClick(this, arg);
 
             CanvasPreviewMouseDown?.Invoke(this, arg);
 
@@ -3104,6 +3106,113 @@ namespace Tida.Canvas.WPFCanvas {
             CanvasPreviewTextInput?.Invoke(this, e);
         }
 
+        private int nClickCount = 0;
 
+        private void DealPreviewMouseMiddleDoubleClick(object sender, Tida.Canvas.Input.MouseDownEventArgs e)
+        {
+            if (e.Button == Tida.Canvas.Input.MouseButton.Middle)
+            {
+                nClickCount += 1;
+                DispatcherTimer timer = new DispatcherTimer();
+                timer.Interval = new TimeSpan(0, 0, 0, 0, 300);
+                timer.Tick += (s, e1) => { timer.IsEnabled = false; nClickCount = 0; };
+                timer.IsEnabled = true;
+                if (nClickCount % 2 == 0)
+                {
+                    timer.IsEnabled = false;
+                    nClickCount = 0;
+
+                    //
+                    ZoomToFit();
+                }
+            }
+
+        }
+
+        public void ZoomToFit()
+        {
+            try
+            {
+                List<Vector2D> boundingVertexs = this.Layers.FirstOrDefault().DrawObjects.SelectMany(x =>
+                {
+                    Rectangle2D2 boundingRect = x.GetBoundingRect();
+                    if (boundingRect != null)
+                    {
+                        if (boundingRect.MiddleLine2D != null)
+                        {
+                            Vector2D direction2D = boundingRect.MiddleLine2D.Direction;
+                            Vector3D direction3D = new Vector3D(direction2D.X, direction2D.Y, 0);
+                            Vector3D normal = direction3D.Cross(Vector3D.BasisZ).Normalize();
+                            Line2D offset1 = boundingRect.MiddleLine2D.CreateOffset(normal.ToVector2D() * boundingRect.Width/2);
+                            Line2D offset2 = boundingRect.MiddleLine2D.CreateOffset(-normal.ToVector2D() * boundingRect.Width / 2);
+
+                            return new List<Vector2D>()
+                            {
+                                boundingRect.MiddleLine2D.Start,
+                                boundingRect.MiddleLine2D.End,
+                                offset1.Start,
+                                offset1.End,
+                                offset2.Start,
+                                offset2.End
+                            };
+                        }
+                        else
+                        {
+                            return boundingRect.GetVertexes().ToList();
+                        }
+                    }
+                    else
+                    {
+                        return new List<Vector2D>();
+                    }
+
+                }).ToList();
+                boundingVertexs = boundingVertexs.Where(x => x != null).ToList();
+
+                double dMinX = boundingVertexs.Min(x => x.X);
+                double dMaxX = boundingVertexs.Max(x => x.X);
+                double dMinY = boundingVertexs.Min(x => x.Y);
+                double dMaxY = boundingVertexs.Max(x => x.Y);
+
+                double dWidth = dMaxX - dMinX;
+
+                dMinX = dMinX - dWidth / 5;
+                dMaxX = dMaxX + dWidth / 5;
+                dWidth = dMaxX - dMinX;
+                double dHeight = dMaxY - dMinY;
+                dMinY = dMinY - dHeight / 5;
+                dMaxY = dMaxY + dHeight / 5;
+                dHeight = dMaxY - dMinY;
+                Vector2D actualRect = new Vector2D(dWidth, dHeight);
+
+                Zoom = 1;
+                UpdateCanvasProxy();
+
+                double dZoom = 1;
+                if (actualRect.Modulus() > 0)
+                {
+                    double dZoomX = CanvasProxy.ActualWidth / CanvasProxy.ToScreen(dWidth);
+                    double dZoomY = CanvasProxy.ActualHeight / CanvasProxy.ToScreen(dHeight);
+                    dZoom = Math.Min(dZoomX, dZoomY);
+                }
+
+                if (dZoom > MinZoom && dZoom < 1200)
+                {
+                    Zoom = dZoom;
+
+                    //
+                    Vector2D screenOriginPt = CanvasProxy.ToScreen(new Vector2D((dMinX + dMaxX) / 2, (dMinY + dMaxY) / 2));
+                    SetCenterScreen(screenOriginPt);
+
+                    UpdateCanvasProxy();
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+            //
+            
+        }
     }
 }

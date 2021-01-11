@@ -55,8 +55,14 @@ namespace Tida.Canvas.Contracts {
         /// </summary>
         /// <param name="ch"></param>
         /// <returns></returns>
-        Size GetCharScreenSize(char ch); 
+        Size GetCharScreenSize(char ch);
 
+        /// <summary>
+        /// 获取字符串在屏幕上的单位大小;
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        Size GetStringRealSize(string text, double fontSize, string fontFamily);
 
         /// <summary>
         /// 当前缩放比例;

@@ -15,7 +15,8 @@ namespace Tida.Canvas.WPFCanvas {
         /// 画布的默认背景色;
         /// </summary>
         public static readonly System.Windows.Media.Brush 
-            DefaultCanvasBackground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0xff, 0x1, 0x39, 0x39));
+            //DefaultCanvasBackground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0xff, 0x1, 0x39, 0x39));
+        DefaultCanvasBackground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0xff, 0x0, 0x0, 0x0));
 
         /// <summary>
         /// 拖放操作中,任意全选的矩形画刷;
